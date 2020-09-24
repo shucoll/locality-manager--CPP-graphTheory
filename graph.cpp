@@ -81,7 +81,8 @@ void dijkstra(vector< vector<float> >&vec,int src,int size) {
         }   
     }
 
-    
+    /*
+    cout<<endl;
     for(int i=1; i<size;i++) {
         cout<<dist[i]<<" ";
     }
@@ -94,6 +95,7 @@ void dijkstra(vector< vector<float> >&vec,int src,int size) {
         cout<<par[i]<<" ";
     }
     cout<<endl;
+    */
 
     printSolution(dist,par,src,size);
 }
@@ -102,7 +104,7 @@ int main() {
     int n;
     float x;
     int i,j;
-    int src;
+    int src,ch;
     cout<<"Enter the number of landmarks"<<endl;
     cin>>n;
     vector< vector<float> > vec( n+1 , vector<float> (n+1));
@@ -122,10 +124,35 @@ int main() {
     }
 
     display(vec,n+1);
+    do{
+        cout<<endl<<endl<<"  --Menu--"<<endl;
+        cout<<"  1. Get the sortest path and distance from one landmark to all other"<<endl;
+        cout<<"  2. Get the sortest path and distance from one landmark to one other landmark"<<endl;
+        cout<<"  3. Get the sortest path and distance from every landmark to every other landmark"<<endl;
+        cout<<"  0. End Program"<<endl;
+        cout<<" Enter choice  : ";cin>>ch;
+        switch(ch) {
+            case 1:
+            cout<<"Enter source node : ";cin>>src;
+            dijkstra(vec,src,n+1);
+            break;
 
-    cout<<"Enter source node "<<endl;
-    cin>>src;
-    dijkstra(vec,src,n+1);
+            case 2:
+            cout<<"Unavailable"<<endl;
+            break;
+
+            case 3:
+            for(int i = 1;i<n+1;i++) {
+                dijkstra(vec,i,n+1);
+            }
+            break;
+
+            case 0:
+            break;
+
+            default: cout<<"Invalid input ";
+        }
+    }while(ch!=0);
     
     return 0;
 }
