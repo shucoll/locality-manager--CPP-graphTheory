@@ -1,12 +1,46 @@
 #include <iostream>
 #include <vector>
-//#include<limits>
+#include <sstream>
+
+#include "LQueue.h"
 
 #define verlim 101
 
-
 using namespace std;
 
+bool BFS(vector< vector<float> >&vec, int src,int distn, int size) {
+
+    if(src == distn) return true;
+
+    int i = src,j;
+    int visited[size];
+    for(int k = 0; k<size;k++) {
+        visited[k] = 0;
+    }
+
+    //cout<<i;
+    visited[i] = 1;
+    qe.enqueue(i);
+
+    while(!qe.isEmpty()) {
+
+        i=qe.dequeue();
+        for(j=1;j<size;j++) {
+
+            if(vec[i][j]!=0 && visited[j]==0){
+                //cout<<j;
+                if( j == distn ) return true;
+                visited[j] = 1;
+                qe.enqueue(j);
+            }
+        }
+    }
+    return false;
+}
+
+/*
+    ---- Display the Matrix Representation of the graph ---- 
+*/
 void display(vector< vector<float> >&vec,int size) {
     int i=0,j=0;
     cout<<endl<<"Matrix representation of the ented values"<<endl;
@@ -19,6 +53,9 @@ void display(vector< vector<float> >&vec,int size) {
     }
 }
 
+/*
+    ---- Utility function to find the vertex with sortest dist vertex that is not included ---- 
+*/
 int leastDistance(float dist[], bool selVer[],int size) {
     float min = __FLT_MAX__ ;
     int minIndex;
@@ -33,6 +70,9 @@ int leastDistance(float dist[], bool selVer[],int size) {
     return minIndex;
 }
 
+/*
+    ---- Recursive function to print path ---- 
+*/
 void printPath(int par[],int i) {
 
     if(par[i] == - 1)
@@ -43,11 +83,18 @@ void printPath(int par[],int i) {
 
 }
 
+/*
+    ---- To print entire solution(distance and path) ---- 
+*/
 void printSolution(float dist[], int par[],int src, int size,int distn) {
-    cout<<endl<<endl<<"Vertex "<<"Distance "<<"Path"<<endl;
+    cout<<endl<<endl<<"Landmark "<<"Distance "<<"Path"<<endl;
     if(distn==0) {
         for(int i = 1; i<size; i++) {
-            cout<<endl<<src<<"->"<<i<<"\t"<<dist[i]<<"\t"<<src;
+            cout<<endl
+            <<src<<"->"
+            <<i<<"\t"
+            <<(dist[i] == __FLT_MAX__ ? 0 : dist[i])<<"\t"
+            <<src;
             printPath(par,i);
         }
     }
@@ -57,8 +104,10 @@ void printSolution(float dist[], int par[],int src, int size,int distn) {
     }
 }
 
-
-void dijkstra(vector< vector<float> >&vec,int src,int size,int distn = 0) {
+/*
+    ---- Dijkstra's algorithm ---- 
+*/
+void Dijkstra(vector< vector<float> >&vec,int src,int size,int distn = 0) {
 
     float dist[size];
     bool selVer[size];
@@ -95,7 +144,9 @@ void dijkstra(vector< vector<float> >&vec,int src,int size,int distn = 0) {
 
 }
 
-
+/*
+    ---- To add new landmarks to exixting graph ---- 
+*/
 void addLandmark(int& size, vector< vector<float> >&vec) {
 
     int i,j;
@@ -139,6 +190,21 @@ void addLandmark(int& size, vector< vector<float> >&vec) {
     size += newLmk;
 } 
 
+/*
+    ---- To check the input from the menus ---- 
+*/
+int checkInput(string chM) {
+    for (int i = 0; i < chM.length(); i++) {
+        if (isdigit(chM[i]) == false) 
+            return -1;
+    }
+
+    int ipM = 0;     
+    stringstream ss(chM);
+    ss >> ipM;
+    return ipM; 
+}
+
 
 
 int main() {
@@ -147,6 +213,7 @@ int main() {
     int i,j;
     int src=1,distn=1,chM,chL;
     int size;
+    bool check;
 
     vector< vector<float> > vec( verlim , vector<float> (verlim));
 
@@ -214,8 +281,10 @@ int main() {
         cout<<"  1. Get the sortest path and distance from one source landmark to all other"<<endl;
         cout<<"  2. Get the sortest path and distance from one source landmark to one other destination landmarks"<<endl;
         cout<<"  3. Get the sortest path and distance from every landmark to every other landmark"<<endl;
-        cout<<"  4. Add more landmarks "<<endl;
-        cout<<"  5. Remove a landmark "<<endl;
+        cout<<"  4. Know if there exists a path between any two landmarks"<<endl;
+        cout<<"  5. Go to all lankmarks starting from one source landmark- path 2"<<endl;
+        cout<<"  6. Add more landmarks "<<endl;
+        cout<<"  7. Remove a landmark "<<endl;
         cout<<"  0. End Program"<<endl;
         cout<<" Enter choice  : ";cin>>chL;
 
@@ -225,7 +294,7 @@ int main() {
                 if (!(src<size && src>=1)) cout<<"Invalid Input! Enter correct landmark number"<<endl;
                 cout<<"Enter source node : ";cin>>src;
             }while(!(src<size && src>=1));
-            dijkstra(vec,src,size);
+            Dijkstra(vec,src,size);
             break;
 
             case 2:
@@ -235,16 +304,24 @@ int main() {
                     cout<<"Enter the destination node : ";cin>>distn;
                 }while(!(src<size && distn<size && src>= 1 && distn>=1));
                 
-                dijkstra(vec,src,size,distn);
+                Dijkstra(vec,src,size,distn);
             break;
 
             case 3:
                 for(int i = 1;i<size;i++) {
-                    dijkstra(vec,i,size);
+                    Dijkstra(vec,i,size);
                 }
             break;
 
             case 4:
+                cout<<"Enter the source landmark: ";cin>>src;
+                cout<<"Enter the distination landmark: ";cin>>distn;
+                check = BFS(vec,src,distn,size);
+                if(check) cout<<"Path exists between "<<src<<" and "<<distn<<endl;
+                else cout<<"Path doesn't exists between "<<src<<" and "<<distn<<endl;
+            break;
+
+            case 6:
                 addLandmark(size,vec);
 
             break;
