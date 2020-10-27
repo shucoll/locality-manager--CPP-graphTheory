@@ -19,7 +19,9 @@ int main() {
     int i,j;
     cout<<"Enter the number"<<endl;
     cin>>n;
-    vector<vector<int> > vec( n , vector<int> (n));
+    //vector<vector<int> > vec( n , vector<int> (n));
+    vector<vector<int> > vec;
+    vec.assign( n , vector<int> (n));
 
     for(i =0;i<n;i++) {
         for(j=0;j<n;j++) {
