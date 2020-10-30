@@ -20,7 +20,7 @@ void displayEdge(float edge[][3],int size) {
     }
 }
 
-    //---- Function to perform union for kruskal's algorithm ---- 
+//      ---- Function to perform union for kruskal's algorithm ---- 
 void join(int u,int v,int set[]) {
 
     if(set[u]<set[v]){
@@ -49,8 +49,8 @@ int find(int u,int set[]){
     return x; 
 }
 
-    //---- Kruskal's algorithm ---- 
-void krus(float edge[][3], int size,vector< vector<float> >&vec) {
+//     ---- Kruskal's algorithm ---- 
+void krus(float edge[][3],int size,vector< vector<float> >&vec) {
 
     vector< vector<float> > res(2, vector<float> (size-1));
 
@@ -77,8 +77,10 @@ void krus(float edge[][3], int size,vector< vector<float> >&vec) {
                 
             }
         }
-        if(find(u,set)!= find(v,set)){
-            res[0][i]=u;res[1][i]=v;
+
+        if(find(u,set)!= find(v,set)) {
+            res[0][i]=u;
+            res[1][i]=v;
             join(find(u,set),find(v,set),set);
             included[k]=1;
             i++;
@@ -88,7 +90,7 @@ void krus(float edge[][3], int size,vector< vector<float> >&vec) {
         }
     }
 
-    int total = 0;
+    float total = 0;
     cout<<"The landmarks to be connected to have all landmarks connected in the min distance possible is"<<endl;
     for(i=0;i<size-2;i++){
         cout<<res[0][i]<<" "<<res[1][i]<<endl;
@@ -100,7 +102,7 @@ void krus(float edge[][3], int size,vector< vector<float> >&vec) {
     delete[] set;
 }
 
-    //---- Function to get 2D matrix with all the edges ---- 
+//    ---- Function to get 2D matrix with all the edges ---- 
 void graphToEdge(vector< vector<float> >&vec, int size) {
 
     float edge[size][3];
@@ -122,14 +124,15 @@ void graphToEdge(vector< vector<float> >&vec, int size) {
     }
     
     //displayEdge(edge,size);
-    krus(edge, size,vec);
+
+    krus(edge,size,vec);
 }
 
 
 
 // ------------------------------------- For Dijkstra's Algorithm --------------------------------------
 
-    //---- Utility function to find the vertex with sortest dist that is not included ---- 
+//      ---- Utility function to find the vertex with sortest dist that is not included in the path ---- 
 int leastDistance(float dist[], bool selVer[],int size) {
     float min = __FLT_MAX__ ;
     int minIndex;
@@ -145,7 +148,7 @@ int leastDistance(float dist[], bool selVer[],int size) {
 }
 
 
-    //---- Recursive function to print path ---- 
+//     ---- Recursive function to print path ---- 
 void printPath(int par[],int i) {
 
     if(par[i] == - 1)
@@ -157,8 +160,7 @@ void printPath(int par[],int i) {
 }
 
 
-
-    //---- To print entire solution(distance and path) ---- 
+//    ---- To print entire solution(distance and path) ---- 
 void printSolution(float dist[], int par[],int src, int size,int distn) {
     cout<<endl<<endl<<"Landmark "<<"Distance "<<"Path"<<endl;
     if(distn==0) {
@@ -179,7 +181,7 @@ void printSolution(float dist[], int par[],int src, int size,int distn) {
 
 
 
-    //---- Dijkstra's algorithm ---- 
+//   ---- Dijkstra's algorithm ---- 
 void Dijkstra(vector< vector<float> >&vec,int src,int size,int distn = 0) {
 
     float dist[size];
@@ -220,7 +222,7 @@ void Dijkstra(vector< vector<float> >&vec,int src,int size,int distn = 0) {
 
 // ------------------------------------- Other Functions --------------------------------------
 
-   //---- BFS to know if path exixts between two landmarks ---- 
+//       ---- BFS to know if path exixts between two landmarks ---- 
 bool isConnected(vector< vector<float> >&vec, int src,int distn, int size) {
 
     if(src == distn) return true;
@@ -253,7 +255,7 @@ bool isConnected(vector< vector<float> >&vec, int src,int distn, int size) {
 
 
 
-   //---- Display the Matrix Representation of the graph ---- 
+//     ---- Display the Matrix Representation of the graph ---- 
 void displayGraph(vector< vector<float> >&vec,int size) {
     int i=0,j=0;
     cout<<endl<<"Matrix representation of the entered values"<<endl;
@@ -267,7 +269,7 @@ void displayGraph(vector< vector<float> >&vec,int size) {
 }
 
 
-   //---- Function to add new landmarks ---- 
+//     ---- Function to add new landmarks ---- 
 void addLandmark1(int& size, vector< vector<float> >&vec) {
 
     int i,j;
@@ -308,7 +310,7 @@ void addLandmark1(int& size, vector< vector<float> >&vec) {
 
 
 
-   //---- Utility function to check the input from the menus ---- 
+//     ---- Utility function to check the input from the menus ---- 
 int checkInput(string chM) {
     for (int i = 0; i < chM.length(); i++) {
         if (isdigit(chM[i]) == false) 
@@ -322,20 +324,20 @@ int checkInput(string chM) {
 }
 
 
-   //---- Main function ---- 
+//     ---- Main function ---- 
 int main() {
     int n;
     float x;
     int i,j;
     int src=1,distn=1,chM,chL;
     int size;
-    bool check;
+    bool check,created=false;
     string choM,choL;
 
     vector< vector<float> > vec;
 
     do{
-        cout<<endl<<endl<<"  -- Main Menu --"<<endl;
+        cout<<endl<<endl<<" -- Main Menu --"<<endl;
         cout<<"  1. Create Locality by adding landmarks"<<endl;
         cout<<"  2. Add more landmarks to the locality"<<endl;
         cout<<"  3. Go to locality management Menu to know about your locality"<<endl;
@@ -365,15 +367,24 @@ int main() {
                         vec[j][i]=x;
                     }
                 }
+                created = true;
 
             break;
 
             case 2:
-                addLandmark1(size,vec);
+                if(created)
+                    addLandmark1(size,vec);
+                else 
+                    cout<<"No locality created"<<endl;
 
             break;
 
             case 3:
+                if(!created) {
+                    cout<<"No locality created"<<endl;
+                    chM = 1;
+                }
+
             break;
 
 
@@ -392,7 +403,7 @@ int main() {
     //displayGraph(vec,size);
 
     while(chL!=0){
-        cout<<endl<<endl<<"  --Locality Management Menu --"<<endl;
+        cout<<endl<<endl<<" -- Locality Management Menu --"<<endl;
         cout<<"  1. Get the sortest path and distance from a source landmark to all other"<<endl;
         cout<<"  2. Get the sortest path and distance from a source landmark to one other destination landmarks"<<endl;
         cout<<"  3. Get the sortest path and distance from every landmark to every other landmark"<<endl;
@@ -407,12 +418,14 @@ int main() {
         chL = checkInput(choL);
 
         switch(chL) {
+
             case 1:
             do {
-                if (!(src<size && src>=1)) cout<<"Invalid Input! Enter correct landmark number"<<endl;
-                cout<<"Enter source landmark : ";cin>>src;
-            }while(!(src<size && src>=1));
-            Dijkstra(vec,src,size);
+                    if (!(src<size && src>=1)) cout<<"Invalid Input! Enter correct landmark number"<<endl;
+                    cout<<"Enter source landmark : ";cin>>src;
+                }while(!(src<size && src>=1));
+                
+                Dijkstra(vec,src,size);
             break;
 
             case 2:
@@ -437,6 +450,7 @@ int main() {
                     cout<<"Enter source landmark : ";cin>>src;
                     cout<<"Enter the destination landmark : ";cin>>distn;
                 }while(!(src<size && distn<size && src>= 1 && distn>=1));
+
                 check = isConnected(vec,src,distn,size);
                 if(check) cout<<"Path exists between "<<src<<" and "<<distn<<endl;
                 else cout<<"Path doesn't exists between "<<src<<" and "<<distn<<endl;
