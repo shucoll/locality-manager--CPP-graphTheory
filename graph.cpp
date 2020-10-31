@@ -9,8 +9,8 @@ using namespace std;
 
 // ------------------------------------- For Kruskal's Algorithm --------------------------------------
 
-void displayEdge(float edge[][3],int size) {
-    for(int i = 0 ; i<size; i++) {
+void displayEdge(float edge[][3],int edges) {
+    for(int i = 0 ; i<edges; i++) {
 
         for(int j = 0 ; j<3 ; j++) {
 
@@ -33,7 +33,7 @@ void join(int u,int v,int set[]) {
     }
 }
 
-    //---- Function to find parent for kruskal's algorithm ---- 
+//     ---- Function to find parent for kruskal's algorithm ---- 
 int find(int u,int set[]){
 
     int x=u,v=0;
@@ -50,29 +50,31 @@ int find(int u,int set[]){
 }
 
 //     ---- Kruskal's algorithm ---- 
-void krus(float edge[][3],int size,vector< vector<float> >&vec) {
+void kruskal(float edge[][3],int size,vector< vector<float> >&vec,int edges) {
 
-    vector< vector<float> > res(2, vector<float> (size-1));
+    vector< vector<float> > res(2, vector<float> (edges-1));
 
-    int *included = new int[size+1];
+    int *included = new int[edges];
     int *set = new int[size];
 
-    for(int i = 0;i<size+1; i++) 
+    for(int i = 0;i<edges; i++) 
         included[i] = 0;
     
-    for(int i = 0; i<size; i++)
+    for(int i = 1; i<size; i++)
         set[i] = -1;
     
-    int u,v,i,j,k,n= size +1;
+    int u,v,i,j,k,n= edges;
     float min=__FLT_MAX__;
     u=v=i=k=0;
 
     while(i<size-2) {
         min=__FLT_MAX__;
-        for(j=0;j<n;j++){
+        for(j=0;j<n;j++) {
 
-            if(included[j]==0 && edge[j][2]<min){
-                u=edge[j][0];v=edge[j][1];min=edge[j][2];
+            if(included[j]==0 && edge[j][2]<min) {
+                u=edge[j][0];
+                v=edge[j][1];
+                min=edge[j][2];
                 k=j;
                 
             }
@@ -103,9 +105,10 @@ void krus(float edge[][3],int size,vector< vector<float> >&vec) {
 }
 
 //    ---- Function to get 2D matrix with all the edges ---- 
-void graphToEdge(vector< vector<float> >&vec, int size) {
+void graphToEdge(vector< vector<float> >&vec, int size, int edges) {
 
-    float edge[size][3];
+    //cout<<edges<<endl;
+    float edge[edges][3];
     int i,j;
     int k=0,l=0;
 
@@ -123,9 +126,10 @@ void graphToEdge(vector< vector<float> >&vec, int size) {
         
     }
     
-    //displayEdge(edge,size);
+    //cout<<edges<<endl;
+    //displayEdge(edge,edges);
 
-    krus(edge,size,vec);
+    kruskal(edge,size,vec,edges);
 }
 
 
@@ -253,6 +257,42 @@ bool isConnected(vector< vector<float> >&vec, int src,int distn, int size) {
     return false;
 }
 
+//       ---- DFS to know if the graph is a connected graph ---- 
+void DFS(vector< vector<float> >&vec,int start,int size, bool visited[]){
+    
+    int j;
+    if(visited[start]==false){
+        //cout<<start;
+        visited[start]=true;
+        for(j=1;j<size;j++){
+            if(vec[start][j]!=0 && visited[j]==0)
+            DFS(vec,j,size,visited);
+        }
+    }
+}
+
+//      ---- Function to check the result from DFS and return the connected status ----
+bool isConnectedAll(vector< vector<float> >&vec,int size) {
+
+    bool flag = true;
+    bool *visited = new bool[size];
+
+    for(int i =1; i<size; i++) {
+        visited[i] = false;
+    }
+
+    DFS(vec,1,size,visited);
+
+    for(int i =1 ; i<size; i++) {
+
+        if(!visited[i]) flag = false;
+    }
+    
+    delete[] visited;
+
+    return flag;
+}
+
 
 
 //     ---- Display the Matrix Representation of the graph ---- 
@@ -270,7 +310,7 @@ void displayGraph(vector< vector<float> >&vec,int size) {
 
 
 //     ---- Function to add new landmarks ---- 
-void addLandmark1(int& size, vector< vector<float> >&vec) {
+void addLandmark1(int& size, vector< vector<float> >&vec, int& edges) {
 
     int i,j;
     float val;
@@ -295,6 +335,8 @@ void addLandmark1(int& size, vector< vector<float> >&vec) {
                 cout<<"Enter distance for  "<<i<<" to "<<j<<" :  ";cin>>val;
                 vec1[i][j]=val;
                 vec1[j][i]=val;
+                if(val!= 0)
+                    edges++;
             }
             else{
                 vec1[i][j] = vec[i][j];
@@ -309,6 +351,25 @@ void addLandmark1(int& size, vector< vector<float> >&vec) {
 }
 
 
+//     ---- Function to change distance betwee two landmarks ---- 
+void changeDistance(int& size, vector< vector<float> >&vec, int& edges) {
+    int newEdg,src=1,distn=1;
+    do {
+        if (!(src<size && distn<size && src>= 1 && distn>=1)) 
+            cout<<"Invalid Input! Enter correct landmark number"<<endl;
+
+        cout<<"Enter source landmark : ";cin>>src;
+        cout<<"Enter the destination landmark : ";cin>>distn;
+    }while(!(src<size && distn<size && src>= 1 && distn>=1));
+
+    cout<<"Enter the new distance value for "<<src<<" and "<<distn<<" (Enter 0 if you want to remove the connection btween the landmarks)"<<endl;
+    cin>>newEdg;
+
+    if(newEdg==0 && vec[src][distn]!=0) edges--;
+    else if(newEdg!=0 && vec[src][distn]==0) edges++;
+    vec[src][distn] = newEdg;
+    vec[distn][src] = newEdg;
+}
 
 //     ---- Utility function to check the input from the menus ---- 
 int checkInput(string chM) {
@@ -330,7 +391,7 @@ int main() {
     float x;
     int i,j;
     int src=1,distn=1,chM,chL;
-    int size;
+    int size,edges=0;
     bool check,created=false;
     string choM,choL;
 
@@ -340,7 +401,8 @@ int main() {
         cout<<endl<<endl<<" -- Main Menu --"<<endl;
         cout<<"  1. Create Locality by adding landmarks"<<endl;
         cout<<"  2. Add more landmarks to the locality"<<endl;
-        cout<<"  3. Go to locality management Menu to know about your locality"<<endl;
+        cout<<"  3. Change distance between two landmarks"<<endl;
+        cout<<"  4. Go to locality management Menu to know about your locality"<<endl;
         cout<<"  0. End program"<<endl;
 
         cout<<" Enter choice  : ";cin>>choM;
@@ -365,6 +427,8 @@ int main() {
                         cout<<"Enter distance for  "<<i<<" to "<<j<<" :  ";cin>>x;
                         vec[i][j]=x;
                         vec[j][i]=x;
+                        if(x!=0)
+                            edges++;
                     }
                 }
                 created = true;
@@ -373,13 +437,17 @@ int main() {
 
             case 2:
                 if(created)
-                    addLandmark1(size,vec);
+                    addLandmark1(size,vec,edges);
                 else 
                     cout<<"No locality created"<<endl;
 
             break;
 
             case 3:
+                changeDistance(size,vec,edges);
+            break;
+
+            case 4:
                 if(!created) {
                     cout<<"No locality created"<<endl;
                     chM = 1;
@@ -395,7 +463,7 @@ int main() {
 
         }
 
-    }while(chM!=0 && chM!=3);
+    }while(chM!=0 && chM!=4);
     
     if(chM == 0) chL = 0;
     else chL = 1;
@@ -404,14 +472,15 @@ int main() {
 
     while(chL!=0){
         cout<<endl<<endl<<" -- Locality Management Menu --"<<endl;
-        cout<<"  1. Get the sortest path and distance from a source landmark to all other"<<endl;
-        cout<<"  2. Get the sortest path and distance from a source landmark to one other destination landmarks"<<endl;
+        cout<<"  1. Get the sortest distance and path from a source landmark to all other landmarks"<<endl;
+        cout<<"  2. Get the sortest distance and path from a source landmark to one destination landmarks"<<endl;
         cout<<"  3. Get the sortest path and distance from every landmark to every other landmark"<<endl;
-        cout<<"  4. Know if there exists a path between any two landmarks"<<endl;
-        cout<<"  5. Get the way to connect all landmarks in the min distance possible"<<endl;
-        cout<<"  6. Add new landmarks "<<endl;
-        //cout<<"  7. Remove a landmark "<<endl;
-        cout<<"  8. Get the matrix representstaion of the graph"<<endl;
+        cout<<"  4. Get the way to connect all landmarks in the min distance possible"<<endl;
+        cout<<"  5. Add new landmarks "<<endl;
+        cout<<"  6. Change distance between two landmarks"<<endl;
+        cout<<"  7. Know if there exists a path between any two landmarks"<<endl;
+        cout<<"  8. Know if isolated landmarks exist in the locality"<<endl;
+        cout<<"  9. Get the matrix representstaion of the graph"<<endl;
         cout<<"  0. End Program"<<endl;
         cout<<" Enter choice  : ";cin>>choL;
 
@@ -445,6 +514,21 @@ int main() {
             break;
 
             case 4:
+                check = isConnectedAll(vec,size);
+                if(check)
+                    graphToEdge(vec,size,edges);
+                else cout<<endl<<"Graph not connected"<<endl;
+            break;
+
+            case 5:
+                addLandmark1(size,vec,edges);
+            break;
+
+            case 6:
+                changeDistance(size,vec,edges);
+            break;
+
+            case 7:
                 do {
                     if (!(src<size && distn<size && src>= 1 && distn>=1)) cout<<"Invalid Input! Enter correct landmark number"<<endl;
                     cout<<"Enter source landmark : ";cin>>src;
@@ -456,15 +540,13 @@ int main() {
                 else cout<<"Path doesn't exists between "<<src<<" and "<<distn<<endl;
             break;
 
-            case 5:
-                graphToEdge(vec,size);
-            break;
-
-            case 6:
-                addLandmark1(size,vec);
-            break;
-
             case 8:
+                check = isConnectedAll(vec,size);
+                if(!check) cout<<"There exist isolated landmarks in the locality "<<endl;
+                else cout<<"No isolated landmarks exist ie all landmarks can be reached starting from any one landmark"<<endl;
+            break;
+
+            case 9:
                 displayGraph(vec,size);
             break;
 
