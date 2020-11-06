@@ -166,19 +166,19 @@ void printPath(int par[],int i) {
 
 //    ---- To print entire solution(distance and path) ---- 
 void printSolution(float dist[], int par[],int src, int size,int distn) {
-    cout<<endl<<endl<<"Landmark "<<"Distance "<<"Path"<<endl;
+    cout<<endl<<endl<<"Landmark  "<<"Distance  "<<"Path"<<endl;
     if(distn==0) {
         for(int i = 1; i<size; i++) {
             cout<<endl
-            <<src<<"->"
-            <<i<<"\t"
+            <<" "<<src<<"->"
+            <<i<<"\t "
             <<(dist[i] == __FLT_MAX__ ? 0 : dist[i])<<"\t"
             <<src;
             printPath(par,i);
         }
     }
     else{
-        cout<<endl<<src<<"->"<<distn<<"\t"<<dist[distn]<<"\t"<<src;
+        cout<<endl<<" "<<src<<"->"<<distn<<"\t "<<dist[distn]<<"\t"<<src;
         printPath(par,distn);
     }
 }
@@ -353,7 +353,8 @@ void addLandmark1(int& size, vector< vector<float> >&vec, int& edges) {
 
 //     ---- Function to change distance betwee two landmarks ---- 
 void changeDistance(int& size, vector< vector<float> >&vec, int& edges) {
-    int newEdg,src=1,distn=1;
+    float newEdg;
+    int src=1,distn=1;
     do {
         if (!(src<size && distn<size && src>= 1 && distn>=1)) 
             cout<<"Invalid Input! Enter correct landmark number"<<endl;
@@ -444,7 +445,11 @@ int main() {
             break;
 
             case 3:
-                changeDistance(size,vec,edges);
+                if(created)
+                    changeDistance(size,vec,edges);
+                else 
+                    cout<<"No locality created"<<endl;
+                
             break;
 
             case 4:
@@ -517,7 +522,7 @@ int main() {
                 check = isConnectedAll(vec,size);
                 if(check)
                     graphToEdge(vec,size,edges);
-                else cout<<endl<<"Graph not connected"<<endl;
+                else cout<<endl<<"Graph not connected. There exits isolated landmarks. Add connection to the isolated landmark to use this feature. To know the isolated landmark use feature 1 and to add connection use feature  6"<<endl;
             break;
 
             case 5:
