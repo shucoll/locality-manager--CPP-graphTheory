@@ -3,225 +3,11 @@
 #include <sstream>
 
 #include "LQueue.h"
+#include "Dijkstras.h"
+#include "Kruskals.h"
 
 using namespace std;
 
-
-// ------------------------------------- For Kruskal's Algorithm --------------------------------------
-
-void displayEdge(float edge[][3],int edges) {
-    for(int i = 0 ; i<edges; i++) {
-
-        for(int j = 0 ; j<3 ; j++) {
-
-            cout<<edge[i][j]<<" ";
-        }
-        cout<<endl;
-    }
-}
-
-//      ---- Function to perform union for kruskal's algorithm ---- 
-void join(int u,int v,int set[]) {
-
-    if(set[u]<set[v]){
-        set[u]+=set[v];
-        set[v]=u;
-    }
-    else{
-        set[v]+=set[u];
-        set[u]=v;
-    }
-}
-
-//     ---- Function to find parent for kruskal's algorithm ---- 
-int find(int u,int set[]){
-
-    int x=u,v=0;
-    while(set[x]>0){
-        x=set[x];
-    }
-
-    while(u!=x){
-        v=set[u];
-        set[u]=x;
-        u=v;
-    }
-    return x; 
-}
-
-//     ---- Kruskal's algorithm ---- 
-void kruskal(float edge[][3],int size,vector< vector<float> >&vec,int edges) {
-
-    vector< vector<float> > res(2, vector<float> (edges-1));
-
-    int *included = new int[edges];
-    int *set = new int[size];
-
-    for(int i = 0;i<edges; i++) 
-        included[i] = 0;
-    
-    for(int i = 1; i<size; i++)
-        set[i] = -1;
-    
-    int u,v,i,j,k,n= edges;
-    float min=__FLT_MAX__;
-    u=v=i=k=0;
-
-    while(i<size-2) {
-        min=__FLT_MAX__;
-        for(j=0;j<n;j++) {
-
-            if(included[j]==0 && edge[j][2]<min) {
-                u=edge[j][0];
-                v=edge[j][1];
-                min=edge[j][2];
-                k=j;
-                
-            }
-        }
-
-        if(find(u,set)!= find(v,set)) {
-            res[0][i]=u;
-            res[1][i]=v;
-            join(find(u,set),find(v,set),set);
-            included[k]=1;
-            i++;
-        }
-        else {
-            included[k] = 1;
-        }
-    }
-
-    float total = 0;
-    cout<<"The landmarks to be connected to have all landmarks connected in the min distance possible is"<<endl;
-    for(i=0;i<size-2;i++){
-        cout<<res[0][i]<<" "<<res[1][i]<<endl;
-        total += vec[res[0][i]][res[1][i]];
-    }
-    cout<<"And the total min distance is "<<total<<endl;
-
-    delete[] included;
-    delete[] set;
-}
-
-//    ---- Function to get 2D matrix with all the edges ---- 
-void graphToEdge(vector< vector<float> >&vec, int size, int edges) {
-
-    //cout<<edges<<endl;
-    float edge[edges][3];
-    int i,j;
-    int k=0,l=0;
-
-    for(i=1;i<size;i++) {
-
-        for(j=i;j<size;j++) {
-
-            if(vec[i][j]==0) continue;
-            edge[l][0] = i;
-            edge[l][1] = j;
-            edge[l][2] = vec[i][j];
-
-            l++;
-        }
-        
-    }
-    
-    //cout<<edges<<endl;
-    //displayEdge(edge,edges);
-
-    kruskal(edge,size,vec,edges);
-}
-
-
-
-// ------------------------------------- For Dijkstra's Algorithm --------------------------------------
-
-//      ---- Utility function to find the vertex with sortest dist that is not included in the path ---- 
-int leastDistance(float dist[], bool selVer[],int size) {
-    float min = __FLT_MAX__ ;
-    int minIndex;
-
-    for(int v = 0; v < size; v++) {
-        if(selVer[v] == false && 
-        dist[v] <= min) {
-            min = dist[v];
-            minIndex = v;
-        }
-    }
-    return minIndex;
-}
-
-
-//     ---- Recursive function to print path ---- 
-void printPath(int par[],int i) {
-
-    if(par[i] == - 1)
-    return;
-
-    printPath(par,par[i]);
-    cout<<" "<<i;
-
-}
-
-
-//    ---- To print entire solution(distance and path) ---- 
-void printSolution(float dist[], int par[],int src, int size,int distn) {
-    cout<<endl<<endl<<"Landmark  "<<"Distance  "<<"Path"<<endl;
-    if(distn==0) {
-        for(int i = 1; i<size; i++) {
-            cout<<endl
-            <<" "<<src<<"->"
-            <<i<<"\t "
-            <<(dist[i] == __FLT_MAX__ ? 0 : dist[i])<<"\t"
-            <<src;
-            printPath(par,i);
-        }
-    }
-    else{
-        cout<<endl<<" "<<src<<"->"<<distn<<"\t "<<dist[distn]<<"\t"<<src;
-        printPath(par,distn);
-    }
-}
-
-
-
-//   ---- Dijkstra's algorithm ---- 
-void Dijkstra(vector< vector<float> >&vec,int src,int size,int distn = 0) {
-
-    float dist[size];
-    bool selVer[size];
-    int par[size];
-
-    for(int i = 0; i<size;i++) {
-        par[i] = -1;
-        dist[i] = __FLT_MAX__;
-        selVer[i] = false;
-    }
-
-    dist[src] = 0;
-
-    for( int ver = 1; ver < size ; ver++) {
-
-        int u = leastDistance(dist,selVer,size);
-
-        selVer[u] = true;
-
-        for(int v = 1; v<size; v++) {
-            if (!selVer[v] && 
-                vec[u][v] && 
-                dist[u] != __FLT_MAX__ && 
-				dist[u] + vec[u][v] < dist[v]) {
-
-                dist[v] = dist[u] + vec[u][v]; 
-                par[v] = u;
-            }
-	
-        }   
-    }
-    
-    printSolution(dist,par,src,size,distn);
-
-}
 
 
 // ------------------------------------- Other Functions --------------------------------------
@@ -262,7 +48,7 @@ void DFS(vector< vector<float> >&vec,int start,int size, bool visited[]){
     
     int j;
     if(visited[start]==false){
-        //cout<<start;
+
         visited[start]=true;
         for(j=1;j<size;j++){
             if(vec[start][j]!=0 && visited[j]==0)
@@ -473,19 +259,18 @@ int main() {
     if(chM == 0) chL = 0;
     else chL = 1;
 
-    //displayGraph(vec,size);
-
     while(chL!=0){
         cout<<endl<<endl<<" -- Locality Management Menu --"<<endl;
         cout<<"  1. Get the sortest distance and path from a source landmark to all other landmarks"<<endl;
-        cout<<"  2. Get the sortest distance and path from a source landmark to one destination landmarks"<<endl;
+        cout<<"  2. Get the sortest distance and path from a source landmark to a destination landmarks"<<endl;
         cout<<"  3. Get the sortest path and distance from every landmark to every other landmark"<<endl;
         cout<<"  4. Get the way to connect all landmarks in the min distance possible"<<endl;
         cout<<"  5. Add new landmarks "<<endl;
         cout<<"  6. Change distance between two landmarks"<<endl;
         cout<<"  7. Know if there exists a path between any two landmarks"<<endl;
         cout<<"  8. Know if isolated landmarks exist in the locality"<<endl;
-        cout<<"  9. Get the matrix representstaion of the graph"<<endl;
+        cout<<"  9. Get all the directly connected landmarks with distance"<<endl;
+        cout<<"  10. Get the matrix representstaion of the graph"<<endl;
         cout<<"  0. End Program"<<endl;
         cout<<" Enter choice  : ";cin>>choL;
 
@@ -552,6 +337,10 @@ int main() {
             break;
 
             case 9:
+                graphToEdge(vec,size,edges,1);
+            break;
+
+            case 10:
                 displayGraph(vec,size);
             break;
 
